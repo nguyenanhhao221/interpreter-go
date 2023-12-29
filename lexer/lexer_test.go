@@ -39,7 +39,6 @@ func TestNextToken(t *testing.T) {
 		}
 	})
 
-	// TODO: better name for test
 	t.Run("Basic language", func(t *testing.T) {
 		input := `let five = 5;
 		let ten = 10;
