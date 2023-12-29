@@ -30,10 +30,9 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+// NextToken Actually read the token and assign it then call readChar to update the position
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
-
-	l.readChar()
 
 	switch l.ch {
 	case '=':
@@ -57,6 +56,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Literal = ""
 		tok.Type = token.EOF
 	}
+
+	l.readChar()
 
 	return tok
 }
