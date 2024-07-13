@@ -15,10 +15,16 @@ func New(input string) *Lexer {
 	l := &Lexer{
 		input: input,
 	}
+
+	// Read the first char when init
 	l.readChar()
 	return l
 }
 
+// readChar The purpose of readChar is to give us the next character and advance our position in the input string.
+// The first thing it does is to check whether we have reached the end of input.
+// If that’s the case it sets l.ch to 0, which is the ASCII code for the "NUL" character and signifies either
+// “we haven’t read anything yet” or “end of file” for us. But if we haven’t reached the end of input yet it sets l.ch to the next character by accessing l.input[l.readPosition].
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
@@ -43,7 +49,6 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.SEMICOLON, l.ch)
 	case '(':
 		tok = newToken(token.LPAREN, l.ch)
-
 	case ')':
 		tok = newToken(token.RPAREN, l.ch)
 	case ',':
@@ -68,8 +73,8 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Literal = l.readNumber()
 			tok.Type = token.INT
+			tok.Literal = l.readNumber()
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
@@ -81,33 +86,23 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
-func isDigit(char byte) bool {
-	// Check if the ASCII value of char (byte) is in the range of ASCII value of the number 0 and 9
-	// ASCII is the standard, it basically mean that each character in the alphabet is present as an integer
-	// For example the number 0 is represent as the value 48 and 9 is 57
-	// The single quote '' in this case ('0') and in go lang mean that Hey get the ASCII value of the number 0
-	return '0' <= char && char <= '9'
-}
-
-func (l *Lexer) readNumber() string {
-	currentPosition := l.position
-	for isDigit(l.ch) {
-		l.readChar()
-	}
-	return l.input[currentPosition:l.position]
-}
-
-func isLetter(char byte) bool {
-	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
-}
-
-// readIdentifier Read until the char is no longer a character, update position
+// readIdentifier Keep reading each char in the string until it is no longer a letter
+// readChar will increase the position of l in the Lexer, then when it no longer a letter, we return the whole string
+// For example: let, it read "l", "e","t" and then return "let"
 func (l *Lexer) readIdentifier() string {
-	currentPosition := l.position
+	position := l.position
 	for isLetter(l.ch) {
 		l.readChar()
 	}
-	return l.input[currentPosition:l.position]
+	return l.input[position:l.position]
+}
+
+func (l *Lexer) readNumber() string {
+	position := l.position
+	for isDigit(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
 }
 
 // skipWhiteSpace if the character is white space skip to the next position
@@ -119,4 +114,12 @@ func (l *Lexer) skipWhiteSpace() {
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
+}
+
+func isLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
 }
