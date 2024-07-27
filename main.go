@@ -1,7 +1,19 @@
 package main
 
-import "log"
+import (
+	"fmt"
+	"interpreter-go/repl"
+	"os"
+	"os/user"
+)
 
 func main() {
-	log.Print("Welcome to Go interpreter for the Monkey language")
+	user, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Hello %s! This is the monkey programming language \n", user.Username)
+	fmt.Println("Feel free to type in commands")
+	repl.Start(os.Stdin, os.Stdout)
 }
